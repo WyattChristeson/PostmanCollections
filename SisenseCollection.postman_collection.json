@@ -1,0 +1,289 @@
+{
+	"info": {
+		"_postman_id": "3fa73b10-7936-415e-81ae-d973303691a3",
+		"name": "SisenseCollection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32145249"
+	},
+	"item": [
+		{
+			"name": "Authenticate to a Sisense Server",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json(); // Parses the JSON response",
+							"console.log(jsonData); // Log the entire response",
+							"console.log(\"Access Token:\", jsonData.access_token); // Log the access token",
+							"pm.environment.set(\"access_token\", jsonData.access_token); // Set the environment variable"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/api/v1/authentication/login",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"authentication",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a list of elasticubes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let elasticubes = pm.response.json(); // This line parses the JSON response into an array",
+							"let ids = elasticubes.map(elasticube => elasticube._id); // This extracts all the _id values",
+							"pm.environment.set(\"elasticubeIds\", ids); // This sets the extracted ids as an environment variable",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/api/v1/elasticubes/getElasticubes",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"elasticubes",
+						"getElasticubes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a list of data security rules by elasticube ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Assuming elasticubeIds is already set in the environment and is an array",
+							"let elasticubeIds = pm.environment.get(\"elasticubeIds\");",
+							"let currentIdIndex = pm.environment.get(\"currentIdIndex\") || 0; // Get the current index or start at 0",
+							"",
+							"if (elasticubeIds && currentIdIndex < elasticubeIds.length) {",
+							"    pm.environment.set(\"_id\", elasticubeIds[currentIdIndex]); // Set the current ID",
+							"    // Increment the index for the next iteration",
+							"    pm.environment.set(\"currentIdIndex\", parseInt(currentIdIndex) + 1); ",
+							"} else {",
+							"    // Handle end of array, maybe resetting the currentIdIndex or stopping the runner",
+							"    pm.environment.unset(\"_id\"); // Clear the _id variable",
+							"    pm.environment.set(\"currentIdIndex\", 0); // Reset the index",
+							"    postman.setNextRequest(null);",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/api/elasticubes/LocalHost/{{_id}}/datasecurity",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"elasticubes",
+						"LocalHost",
+						"{{_id}}",
+						"datasecurity"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a list of datamodels",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/api/v2/datamodels/schema",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"datamodels",
+						"schema"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Elasticube Build Schedules",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Assuming elasticubeIds is already set in the environment and is an array",
+							"let datamodelIds = pm.environment.get(\"datamodelIds\");",
+							"let currentDMIndex = pm.environment.get(\"currentDMIndex\") || 0; // Get the current index or start at 0",
+							"",
+							"if (datamodelIds && currentDMIndex < datamodelIds.length) {",
+							"    pm.environment.set(\"oid\", datamodelIds[currentDMIndex]); // Set the current ID",
+							"    // Increment the index for the next iteration",
+							"    pm.environment.set(\"currentDMIndex\", parseInt(currentDMIndex) + 1); ",
+							"} else {",
+							"    // Handle end of array, maybe resetting the currentIdIndex or stopping the runner",
+							"    pm.environment.unset(\"oid\"); // Clear the _id variable",
+							"    pm.environment.set(\"currentDMIndex\", 0); // Reset the index",
+							"    postman.setNextRequest(null);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/api/v2/datamodels/{{oid}}/schedule",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"datamodels",
+						"{{oid}}",
+						"schedule"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
